@@ -112,6 +112,7 @@ std::optional<FoodItem> OpenFoodFactsClient::lookup(const std::string& barcode)
     item.setField(FoodField::ServingUnit, getPreferredField(nutriments, {"serving_unit"}));
     item.setField(FoodField::ServingsPerContainer, getPreferredField(nutriments, {"servings_per_container"}));
     item.setField(FoodField::Sodium, getPreferredField(nutriments, {"sodium"}));
+    item.setField(FoodField::Sodium, getPreferredField(nutriments, {"fiber"}));
 
     // finish up product
     // item.setField(FoodField::ServingSize, getPreferredField(product, {"serving_size"}));
@@ -121,6 +122,7 @@ std::optional<FoodItem> OpenFoodFactsClient::lookup(const std::string& barcode)
     }else {
         item.markMissing(FoodField::ServingSize);
     }
+    item.markMissing(FoodField::Price);
 }
 
     return item;

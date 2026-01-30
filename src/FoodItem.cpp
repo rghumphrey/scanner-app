@@ -3,6 +3,30 @@
 #include <iostream>
 #include <iomanip>
 
+/* helper functions (conversions)*/
+std::string to_lower(std::string& s)
+{
+    std::string ret;
+    int len = s.length();
+
+    char *c;
+    c = (char*)malloc(sizeof(char) * len);
+
+    for (int i = 0; i < len; i++)
+    {
+        if (s[i] >= 65 && s[i] < 91) 
+            c[i] = s[i] + 32;
+        else 
+            c[i] = s[i];
+    }
+    ret = c;
+    free (c);
+    return ret;
+
+}
+
+
+/* getting functions */
 const std::string& FoodItem::getBarcode() const
 {
     return barcode;
@@ -27,6 +51,70 @@ bool FoodItem::hasMissingFields() const
     return true;
 }
 
+void FoodItem::fix_missing() // iterate thru missing fields to set them
+{
+    if (missing_fields.empty()) return;
+
+    std::string s_val;
+    double d_val;
+    printMissing();
+    std::cout << "Update: ";
+    for (const auto& field : missing_fields) {
+        std::cout << " -> " << fieldToString(field) << " = ";
+        if (isDoubleField(field))
+        {
+            if (field !=  FoodField::ServingSize) std::cout << "(in g or $) ";
+            // std::cin >> d_val;
+            getline(std::cin, s_val);
+            d_val = std::stod(s_val);
+            setField(field, d_val);
+            clearMissing(field);
+        }
+        else
+        {
+            getline(std::cin, s_val);
+            // std::cin >> s_val;
+            setField(field, s_val);
+            clearMissing(field);
+        }
+        // std::cout << std::endl;
+    }
+    
+}
+void FoodItem::fix_fields()
+{
+    std::string value;
+    std::string input;
+    double val;
+    FoodField field;
+    print();
+    
+    while (true){
+        std::cout << "Write field to update (or q to quit): ";
+        // get input
+        getline(std::cin, value);
+        if (value == "q") break;
+
+        field = fromString(to_lower(value));
+        std::cout << "Update -> " << fieldToString(field) << " = ";
+        if (isDoubleField(field))
+        {
+            std::cout << "(in g or $) ";
+            getline(std::cin, input);
+            val = std::stod(input);
+            setField(field, val);
+            clearMissing(field);
+        }
+        else
+        {
+            getline(std::cin, input);
+            setField(field, input);
+            clearMissing(field);
+        }
+        // std::cout << std::endl;
+    }
+
+}
 
 void FoodItem::print() const
 {
@@ -68,6 +156,7 @@ void FoodItem::print() const
     printNum("Fat", fat, FoodField::Fat, "g");
     printNum("Saturated Fat", saturated_fat, FoodField::SaturatedFat, "g");
     printNum("Carbohydrates", carbs, FoodField::Carbs, "g");
+    printNum("Fiber", fiber, FoodField::Fiber, "g");
     printNum("Added Sugar", added_sugar, FoodField::AddedSugar, "g");
     printNum("Sodium", sodium, FoodField::Sodium, "g");
 
@@ -77,6 +166,7 @@ void FoodItem::print() const
              FoodField::ServingsPerContainer);
 
     printField("Serving Unit", serving_unit);
+    printNum("Price", price, FoodField::Price, "$");
 
     std::cout << "=====================\n";
 }
@@ -110,13 +200,15 @@ nlohmann::json to_json(const FoodItem& item)
     j["serving_size"] = item.serving_size;
     j["servings_per_container"] = item.servings_per_container;
     j["serving_unit"] = item.serving_unit;
+    j["price"] = item.price;
+    j["sodium"] = item.sodium;
+    j["fiber"] = item.fiber;
 
     for (auto f : item.missing_fields)
         j["missing_fields"].push_back(fieldToString(f));
 
     return j;
 }
-
 FoodItem FoodItem::from_json(const nlohmann::json& j)
 {
     FoodItem item;
@@ -134,6 +226,8 @@ FoodItem FoodItem::from_json(const nlohmann::json& j)
     item.servings_per_container = j.value("servings_per_container", 0.0);
     item.serving_unit = j.value("serving_unit", "");
     item.price = j.value("price", 0.0);
+    item.fiber = j.value("fiber", 0.0);
+    item.sodium = j.value("sodium", 0.0);
 
     if (j.contains("missing_fields")) {
         for (const auto& f : j["missing_fields"])

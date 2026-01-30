@@ -15,6 +15,7 @@ enum class FoodField {
     Protein,
     Fat,
     Carbs,
+    Fiber,
     SaturatedFat,
     AddedSugar,
     Calories,
@@ -35,6 +36,7 @@ inline std::string fieldToString(FoodField f) {
         case FoodField::Protein: return "protein";
         case FoodField::Fat: return "fat";
         case FoodField::Carbs: return "carbs";
+        case FoodField::Fiber: return "fiber";
         case FoodField::SaturatedFat: return "saturated_fat";
         case FoodField::AddedSugar: return "added_sugar";
         case FoodField::Calories: return "calories";
@@ -42,6 +44,7 @@ inline std::string fieldToString(FoodField f) {
         case FoodField::ServingsPerContainer: return "servings_per_container";
         case FoodField::ServingUnit: return "serving_unit";
         case FoodField::Sodium: return "sodium";
+        case FoodField::Price: return "price";
         default: return "unknown";
     }
 }
@@ -53,15 +56,38 @@ inline FoodField fromString(std::string value) {
     else if (value == "protein") return FoodField::Protein;
     else if (value == "fat") return FoodField::Fat;
     else if (value == "carbs") return FoodField::Carbs;
-    else if (value == "saturated_fat") return FoodField::SaturatedFat;
-    else if (value == "added_sugar") return FoodField::AddedSugar;
+    else if (value == "fiber") return FoodField::Fiber;
+    else if (value == "saturated_fat" || value == "saturated fat") return FoodField::SaturatedFat;
+    else if (value == "added_sugar" || value == "added sugar") return FoodField::AddedSugar;
     else if (value == "calories") return FoodField::Calories;
-    else if (value == "serving_size") return FoodField::ServingSize;
-    else if (value == "servings_per_container") return FoodField::ServingsPerContainer;
-    else if (value == "serving_unit") return FoodField::ServingUnit;
+    else if (value == "serving_size" || value == "serving size") return FoodField::ServingSize;
+    else if (value == "servings_per_container" || value == "servings per container") return FoodField::ServingsPerContainer;
+    else if (value == "serving_unit" || value == "serving unit") return FoodField::ServingUnit;
     else if (value == "sodium") return FoodField::Sodium;
     else if (value == "price") return FoodField::Price;
     else return FoodField::Name; // RETURN UNKNOWN?
+}
+inline bool isDoubleField(FoodField f)
+{
+    switch (f) {
+        case FoodField::Protein:
+        case FoodField::Fat:
+        case FoodField::Carbs:
+        case FoodField::SaturatedFat:
+        case FoodField::AddedSugar: 
+        case FoodField::Calories: 
+        case FoodField::ServingSize:
+        case FoodField::ServingsPerContainer: 
+        case FoodField::Sodium:
+        case FoodField::Price: return true;
+
+        case FoodField::Name: 
+        case FoodField::Brand: 
+        case FoodField::Store: 
+        case FoodField::Barcode: 
+        case FoodField::ServingUnit: 
+        default: return false;
+    } 
 }
 
 class FoodItem {
@@ -107,12 +133,14 @@ public:
             case FoodField::Protein: protein = value; break;
             case FoodField::Fat: fat = value; break;
             case FoodField::Carbs: carbs = value; break;
+            case FoodField::Fiber: fiber = value; break;
             case FoodField::SaturatedFat: saturated_fat = value; break;
             case FoodField::AddedSugar: added_sugar = value; break;
             case FoodField::Calories: calories = value; break;
             case FoodField::ServingSize: serving_size = value; break;
             case FoodField::ServingsPerContainer: servings_per_container = value; break;
             case FoodField::Sodium: sodium = value; break;
+            case FoodField::Price: price = value; break;
             default: return;
         }
         missing_fields.erase(field);
@@ -128,12 +156,14 @@ public:
             case FoodField::Protein: protein = *value; break;
             case FoodField::Fat: fat = *value; break;
             case FoodField::Carbs: carbs = *value; break;
+            case FoodField::Fiber: fiber = *value; break;
             case FoodField::SaturatedFat: saturated_fat = *value; break;
             case FoodField::AddedSugar: added_sugar = *value; break;
             case FoodField::Calories: calories = *value; break;
             case FoodField::ServingSize: serving_size = *value; break;
             case FoodField::ServingsPerContainer: servings_per_container = *value; break;
             case FoodField::Sodium: sodium = *value; break;
+            case FoodField::Price: price = *value; break;
             default: return;
         }
     }
@@ -148,6 +178,10 @@ public:
         }
         missing_fields.erase(field);
     }
+
+    // UI functions
+    void fix_missing();
+    void fix_fields();
 
     // Mark missing and clear missing
     void markMissing(FoodField field) { missing_fields.insert(field); }
@@ -171,6 +205,7 @@ private:
 
     double fat = 0;
     double carbs = 0;
+    double fiber = 0.0;
     double protein = 0;
     double saturated_fat = 0;
     double added_sugar = 0;
