@@ -1,0 +1,76 @@
+# =========================
+# Build artifacts
+# =========================
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+compile_commands.json
+install_manifest.txt
+
+# =========================
+# Executables & object files
+# =========================
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+
+# =========================
+# Debug / profiler output
+# =========================
+*.log
+*.trace
+*.prof
+*.gprof
+vgcore.*
+
+# =========================
+# IDE / editor files
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.user
+*.userprefs
+
+# =========================
+# OS-generated files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Runtime data
+# =========================
+data/food_db.json
+data/*.bak
+data/*.tmp
+
+# =========================
+# Test outputs
+# =========================
+tests/output/
+tests/*.log
+
+# =========================
+# Coverage reports
+# =========================
+coverage/
+*.gcda
+*.gcno
+*.gcov
+
+# =========================
+# Python / tooling
+# =========================
+__pycache__/
+*.pyc
